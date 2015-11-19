@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+
+	<h1 class="subtitle"> {{title}} </h1>
+	
+	<div style="color: white; font-size: 20px; font-family: Helvetica, Arial, sans-serif; width: 80%; margin: 0 auto;">
+					
+					<!--<p style="text-align: right; font-size: 16px; color: light-grey;">  date</p>--> 
+					<img src="http://127.0.0.1/static/{{ img }}" style="width: 100%;">
+					<div> 
+						<div style="background-color: #fff; padding: 20px; opacity: 0.85;"> 
+						<pre style="text-align: left; font-size: 25px; color: dark-grey; " > 
+							{{ text }} 
+						</pre>
+						</div>
+					</div> 
+
+	</div>
+
+
+
+<br/><br/>
+
+
+	<div style="color: #000; text-align: left;">
+    {% if comments|length > 0 %}
+
+        {% for comment in comments %}
+
+          <div style="float:left; margin-bottom: 27px; color: #000; padding: 15px; border-radius: 15px; background-color: white; width: 100%;">
+                 
+             <img width='130px' height='130px' style="margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;" src = "https://pp.vk.me/c625430/v625430637/13a64/q0rT612i538.jpg">
+             <p style="margin-top: 20px;"> {{comment.user}} </p>
+             <p style="color: grey;"> {{comment.date}} </p>
+             <hr/>
+              <pre style="border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;">
+{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}
+
+              </pre>
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+            <pre>
+              No comments yet...
+            </pre>
+    {% endif %}
+     
+
+  </div>
+
+
+
+
+  
+
+
+
+{% endblock %}

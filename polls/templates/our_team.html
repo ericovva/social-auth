@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+
+{% block title %}OUR TEAM{% endblock %}
+
+{% block content %}
+<div class="row"> 
+{% for team in teams %}
+
+			<!--<div class="col-sm-4 {% if team.id == 0 or team.id == 1  %} col-sm-offset-2 {% endif %}"> -->
+			<div class="col-sm-4 ">
+				<div class="thumbnail">
+				 <img src="http://127.0.0.1/static/{{ team.img }}" alt=""> 
+				</div>
+				
+			</div>
+
+{% endfor %}
+
+
+
+</div>
+{% endblock %}

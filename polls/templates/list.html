@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+
+{% block title %}Games{% endblock %}
+
+
+{% block content %}
+<h1 class="title"> PLAY GAMES </h1>
+<h2 class="subtitle"> learn more </h2>
+<div class="row"> 
+{% for post in posts %}
+			
+			<!--<div class="col-sm-4 {% if post.id == 2 or post.id == 4  %} col-sm-offset-2 {% endif %}"> -->
+			<div class="col-sm-4 ">
+				<div class="thumbnail">
+					<a href="/post/{{ post.id }}/"> <img src="http://127.0.0.1/static/{{ post.img }}" alt=""> </a>
+					<div class="caption">
+						<a href="/post/{{ post.id }}/">{{ post.title }}  id = {{ post.id }}</a>
+						<p>{{ post.description }} </p>
+						<p><a href="{{ post.play_link }}" target="blank" class="btn btn-primary" style="background-color: #6600ff;"  role="button">PLAY</a> 
+						   <a href="{{post.download_link}}" target="blank" class="btn btn-default" style="background-color: #00cc66"  role="button">DOWNLOAD</a>
+						</p>
+					</div>
+					<p style="text-align: right;"> {{ post.date }} </p>
+				</div>
+
+			</div>
+
+
+{% endfor %}
+
+
+
+</div>
+{% endblock %}
