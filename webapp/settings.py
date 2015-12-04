@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-
+import random
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -39,7 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
                 'bootstrap3',
-                'polls'
+                'polls',
+                'social_auth',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -86,8 +87,6 @@ DATABASES = {
 }
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -99,9 +98,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = "/Users/erik/Movies/webapp/static/"
@@ -118,3 +114,40 @@ TEMPLATE_DIRS = (
                  "/Users/erik/Movies/webapp/polls/templates",
                  )
 
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.twitter.TwitterBackend',
+    'social_auth.backends.facebook.FacebookBackend',
+    'social_auth.backends.contrib.vk.VKOAuth2Backend',
+    'social_auth.backends.google.GoogleOAuth2Backend',
+    'social_auth.backends.contrib.github.GithubBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.request',
+    'social_auth.context_processors.social_auth_by_name_backends',
+)
+
+
+SOCIAL_AUTH_DEFAULT_USERNAME = lambda: random.choice(['Darth_Vader', 'Obi-Wan_Kenobi', 'R2-D2', 'C-3PO', 'Yoda'])
+
+SOCIAL_AUTH_CREATE_USERS = True
+
+
+SOCIAL_AUTH_PIPELINE = (
+
+    'social_auth.backends.pipeline.social.social_auth_user',
+
+    'social_auth.backends.pipeline.associate.associate_by_email',
+
+    'social_auth.backends.pipeline.user.get_username',
+
+    'social_auth.backends.pipeline.user.create_user',
+
+    'social_auth.backends.pipeline.social.associate_user',
+
+    'social_auth.backends.pipeline.social.load_extra_data',
+
+    'social_auth.backends.pipeline.user.update_user_details'
+)

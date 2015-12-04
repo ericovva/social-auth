@@ -14,7 +14,8 @@ class MyUser(User):
     login = models.CharField(max_length=100)
     img = models.ImageField(null=True)
     objects = UserManager()
-
+# class MyUser(AbstractBaseUser):
+#     img = models.ImageField(null=True)
 
 class Team(models.Model):
     # название поста
@@ -78,7 +79,7 @@ class CommentBlogPost(models.Model):
 Класс для админки, тут будут дополнительные атрибуты необходимые для админки
 '''
 class MyUserAdmin(admin.ModelAdmin):
-    list_display = ('login',)
+    list_display = ('login','username')
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('title',)
 class CommentAdmin(admin.ModelAdmin):

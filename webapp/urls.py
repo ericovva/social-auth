@@ -17,8 +17,8 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 from polls.views import main_page, get_post, posts_page, auth, we , blog, profile, get_blog_post
+from polls import views
 from django.conf.urls import patterns
-
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -26,11 +26,13 @@ urlpatterns = patterns('',
                (r'^post/([0-9]{1,5})', get_post),
                 (r'^$', main_page),
                        (r'^posts/', posts_page),
-                            (r'^auth/', auth),
+                            #(r'^auth/', auth),
                                 (r'^we/', we),
                        (r'^blog/', blog),
                        (r'^profile/', profile),
                        (r'^blog_post/([0-9]{1,5})', get_blog_post),
-                       
+                       url(r'^register/$', views.RegisterFormView.as_view()),
+                       url(r'^auth/$', views.LoginFormView.as_view()),
+                       url(r'', include('social_auth.urls')),
                
 )
