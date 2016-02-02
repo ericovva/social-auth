@@ -2,31 +2,89 @@
 
 {% block title %}{{ title }} {% endblock %}
 {% block head %} 
-  <link href="http://127.0.0.1/static/rating/styles/styles.css" rel="stylesheet" type="text/css" /> 
-<link href="http://127.0.0.1/static/rating/styles/jquery.rating.css" rel="stylesheet" type="text/css" /> 
+  <link href="/static/rating/styles/styles.css" rel="stylesheet" type="text/css" /> 
+<link href="/static/rating/styles/jquery.rating.css" rel="stylesheet" type="text/css" /> 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 
 <script type="text/javascript">
-window.jQuery || document.write('<script type="text/javascript" src="http://127.0.0.1/static/rating/js/jquery-1.6.2.min.js"><\/script>');
+window.jQuery || document.write('<script type="text/javascript" src="/static/rating/js/jquery-1.6.2.min.js"><\/script>');
 </script>
 
-<script type="text/javascript" src="http://127.0.0.1/static/rating/js/jquery.rating-2.0.min.js"></script>
+<script type="text/javascript" src="/static/rating/js/jquery.rating-2.0.min.js"></script>
 
 <script type="text/javascript">
 
 jQuery(function($){
   
+  var new_=""
+  $("#form_unlike").submit(function(event){ 
+            //alert('sdas')
+            var a = $(this).serialize() + "&id={{ id }}"
+            $.ajax({
+                 type:"POST",
+                 url:"/change_view_unlike/",
+                 data: a, 
+                 success: function(json) { //alert(json)
+                    //alert(json)
+                     //alert(json["msg"]);
+
+                      $('#rating_3').rating({
+                        readOnly: false
+                        });
+                      var val_ = parseFloat(json['msg']) //всего 160 пикселей
+                      //alert(val_)
+                      var coef = val_ / 5;
+                      new_ = String(coef * 160.0) + "px"
+                      $(".vote-active").css({"width": new_})
+                   
+                     //var comments = JSON.parse(json)
+                  }
+            });
+            return false; 
+        });
+
+  
+  $("#rating_3").hover(function(){
+    //in
+    }, function(){ //alert(new_);
+      if (new_ == "") {
+        var val_ = parseFloat("{{rating}}") //всего 160 пикселей
+        //alert(val_)
+        var coef = val_ / 5;
+        new_ = String(coef * 160.0) + "px"
+      }
+    $(".vote-active").css({"width":new_})//out
+});
   $('#rating_3').rating({
-    fx: 'float',
-        image: 'http://127.0.0.1/static/rating/images/stars.png',
-        loader: 'http://127.0.0.1/static/rating/images/ajax-loader.gif',
+        fx: 'float',
+        image: '/static/rating/images/stars.png',
+        loader: '/static/rating/images/ajax-loader.gif',
         minimal: 0.6,
-    url: '',
-        callback: function(responce){
-            
+        url: '/change_view/',
+        readOnly: false,
+        cancel: true,
+        callback: function(responce) {
+            //alert(responce);
             this.vote_success.fadeOut(2000);
-            if(responce.msg) alert(responce.msg);
+            if(responce.msg) {
+              $('#rating_3').rating({
+      readOnly: false
+      });
+              //alert(responce.msg);
+              var val_ = parseFloat(responce.msg) //всего 160 пикселей
+              var coef = val_ / 5;
+              //alert(coef);
+              //alert(coef * 160.0)
+              new_ = String(coef * 160.0) + "px"
+              //alert(new_)
+              //alert($(".vote-active").css("width"))
+              $(".vote-active").css({"width":new_})
+
+              //alert($(".vote-active").css("width"))
+              
+            }
         }
+
   });
 })
 </script>
@@ -37,12 +95,22 @@ jQuery(function($){
 
 <div class="wrap">
   <div class="border-wrap">
-    <h2 style = "text-align: left; color: #000;">Rating: {{rating}} Votes: {{votes}}  </h2>
+    <h2 style = "text-align: left; color: #000;"><!-- Rating: {{rating}} Votes: {{votes}} --> Show: {{show_times}}  </h2>
+    
+    <form action="/change_view_unlike/" method="post" id="form_unlike" >
+      {% csrf_token %}
+      <input type="hidden" name="content_type" value="game"/>
+      <button id = "rating_clear" type="submit"> cancel </button>
+    </form>
+    
       <div id="rating_3">
+                
+                {% csrf_token %}
                 <input type="hidden" name="val" value="{{rating}}"/>
                 <input type="hidden" name="votes" value="{{votes}}"/>
-                <input type="hidden" name="vote-id" value="3"/>
-                <input type="hidden" name="cat_id" value="2"/>
+                <input type="hidden" name="content_type" value="game"/>
+                <input type="hidden" name="id" value="{{id}}"/>
+                
       </div>
 
       
@@ -62,14 +130,14 @@ jQuery(function($){
   <!-- Wrapper for slides -->
   <div class="carousel-inner" >
     <div class="item active">
-        <img src="http://127.0.0.1/static/screenshots/1.jpg" alt="">
+        <img src="/static/screenshots/1.jpg" alt="">
         
         <div class="item-box top left"></div>
         <div class="item-box top right"></div>
     </div>
       {% for img in images%}
       <div class="item">
-        <img src="http://127.0.0.1/static/screenshots/{{img.img}}" alt="">
+        <img src="/static/screenshots/{{img.img}}" alt="">
         
         <div class="item-box top left"></div>
         <div class="item-box top right"></div>
@@ -98,19 +166,28 @@ jQuery(function($){
 <br/><br/>
 <h2 style="float: left;font-size: 24px;color: #fff;">Comments </h2>
 <br/><br/><br/>
-<div style="color: #000; text-align: left;">
+<style>
+.comment_div{
+  float:left; margin-bottom: 27px; color: #000; padding: 15px; border-radius: 15px; background-color: white; width: 100%;
+}
+</style>
+<div style="color: #000; text-align: left;" id = "comment_block">
     {% if comments|length > 0 %}
 
         {% for comment in comments %}
 
           <div style="float:left; margin-bottom: 27px; color: #000; padding: 15px; border-radius: 15px; background-color: white; width: 100%;">
                  
-             <img width='130px' height='130px' style="margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;" src = "https://pp.vk.me/c625430/v625430637/13a64/q0rT612i538.jpg">
-             <p style="margin-top: 20px;"> {{comment.user}} </p>
+             <img width='130px' height='130px' style="margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;" 
+             {% if comment.user.img %} src = "{{comment.user.img}}"> 
+             {% else %}
+             src = "https://pp.vk.me/c625430/v625430637/13a64/q0rT612i538.jpg">
+             {%endif%}
+             <p style="margin-top: 20px;"> {{comment.user.username}} </p>
              <p style="color: grey;"> {{comment.date}} </p>
              <hr/>
               <pre style="border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;">
-{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}{{ comment.text }}
+{{ comment.text }}
 
               </pre>
             </div>
@@ -122,16 +199,75 @@ jQuery(function($){
               No comments yet...
             </pre>
     {% endif %}
-    <p style="color: white;margin-left: 32px;font-size: 20px;"> Прокомментировать игру <p>
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form.as_table }}
-    </br></br>
-      <button class="btn btn-lg btn-warning btn-block" type="submit" style="width: 300px; margin-left: 32px;">Post comment</button>
-    </form>
+   
+    <script>
+      $(document).ready(function() {
+       
 
+       $("#form_comment").submit(function(event){
+            //console.log($(this));
+            var a = $(this).serialize() + "&id={{ id }}"
+            $.ajax({
+                 type:"POST",
+                 url:"/post_comment/",
+                 data: a, 
+                 success: function(json) { //alert(json)
+                    //alert(json)
+                     //alert(JSON.parse(json)[0]["fields"]["text"]);
+                     //var comments = JSON.parse(json)
+                     //add one comment//
+                    
+                     var img =  "<img width=\'130px\' height=\'130px\' style=\"margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;\" src = \"/"  +  json['profile_photo'] +"\">"
+                      var p1 = "<p style=\"margin-top: 20px;\">"
+                      var p2 = "<p style=\"color: grey;\">" 
+                      var pre = "<hr/><pre style=\"border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;\">"
+                     $( "#comment_block" ).append( "<div class=\"comment_div\">" 
+                            + img + "</img>" 
+                            + p1 + json["user"] + "</p>"
+                            + p2 + json["date"] + "</p>"
+                            + pre + json["text"] + "</pre>"
+
+
+                            + "</div>" );
+                     /////
+                     // var myNode = document.getElementById("comment_block");
+                     //  while (myNode.firstChild) {
+                     //      myNode.removeChild(myNode.firstChild);
+                     //  }
+                     //  var img =  "<img width=\'130px\' height=\'130px\' style=\"margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;\" src = \"https://pp.vk.me/c625430/v625430637/13a64/q0rT612i538.jpg\">"
+                     //  var p1 = "<p style=\"margin-top: 20px;\">"
+                     //  var p2 = "<p style=\"color: grey;\">" 
+                     //  var pre = "<hr/><pre style=\"border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;\">"
+                     //  for (var i in comments) {
+                     //    $( "#comment_block" ).append( "<div class=\"comment_div\">" 
+
+                     //        + img + "</img>" 
+                     //        + p1 + comments[i]["fields"]["user"] + "</p>"
+                     //        + p2 + comments[i]["fields"]["date"] + "</p>"
+                     //        + pre + comments[i]["fields"]["text"] + "</pre>"
+
+
+                     //        + "</div>" );
+                     //  }
+                  }
+            });
+            return false; 
+       });
+
+});
+
+    </script>
+    
   </div>
-
+   <p style="color: white;margin-left: 32px;font-size: 20px;"> Прокомментировать игру <p>
+      {% if user.is_authenticated %}
+    <form action="/post_comment/" method="post" id="form_comment">
+      {% csrf_token %}
+      {{ form.text }}
+    </br></br>
+      <button id = "post_comment" class="btn btn-lg btn-warning btn-block" type="submit" style="width: 300px; margin-left: 32px;">Post comment</button>
+    </form>
+    {% endif %}
 
 
 

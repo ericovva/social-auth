@@ -1,5 +1,5 @@
 # ~*~ coding: utf-8 ~*~
-
+from __future__ import unicode_literals
 # функция генерирующая 404 страницу
 from django.http import Http404
 
@@ -14,20 +14,35 @@ from polls.models import BlogPost
 from polls.models import CommentBlogPost
 from polls.models import Screenshot
 from polls.models import Rating
-
+from polls.models import ProfilePhoto
 from polls.models import MyUser
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
+from django.contrib.auth import logout
 from polls.forms import CustomUserCreationForm, CommentsForm
 from django.views.generic.edit import FormView
 from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_protect
+from django.conf import settings
+import json
+from json import dumps
+from django.core import serializers
+from django.core.mail import send_mail
+from .forms import UploadFileForm
+from PIL import Image
+
+def logout_view(request):
+  logout(request)
+  # Redirect to a success page.
+  return HttpResponseRedirect("/")
 
 class LoginFormView(FormView):
     form_class = AuthenticationForm
     template_name = "login.html"
-    success_url = "/"
+    success_url = "/" 
     def form_valid(self, form):
         self.user = form.get_user()
         login(self.request, self.user)
@@ -37,28 +52,94 @@ class RegisterFormView(FormView):
     form_class = CustomUserCreationForm
     success_url = "/auth/"
     template_name = "register.html"
-
     def form_valid(self, form):
         form.save()
+        mes = "Look here http://127.0.0.1/posts/ for new games!"
+        send_mail('Regisration complete', mes, 'from@example.com',
+    ['ericovva@yandex.ru'], fail_silently=False)
         return super(RegisterFormView, self).form_valid(form)
+from django.views.decorators.csrf import csrf_exempt 
 
+@csrf_exempt
+def upload_file(request):
+    print("zzz")
+    if request.method == 'POST':
+        print("ccc")
+        form = UploadFileForm(request.POST, request.FILES)
+        print(request.FILES.get('file', False))
+        if form.is_valid():
+            print(request.user.username)
+            path = 'media/' + str(request.user.id) + ".png"
+            handle_uploaded_file(request.FILES.get('file', False),path)
+            print("aaaa")
+            response = {
+                    'msg' : path,
+                    'status' : 'OK'
+                }
+            
+            image = Image.open(path)
 
+            pw = image.width
+            ph = image.height
+            print(pw)
+            nw = 150    
+            nh = 150
+            pr = float(pw) / float(ph)
+            nr = float(nw) / float(nh)
 
+            if pr > nr:
+                # photo aspect is wider than destination ratio
+                tw = int(round(nh * pr))
+                image = image.resize((tw, nh), Image.ANTIALIAS)
+                l = int(round(( tw - nw ) / 2.0))
+                image = image.crop((l, 0, l + nw, nh))
+            elif pr < nr:
+                # photo aspect is taller than destination ratio
+                th = int(round(nw / pr))
+                image = image.resize((nw, th), Image.ANTIALIAS)
+                t = int(round(( th - nh ) / 2.0))
+                print((0, t, nw, t + nh))
+                image = image.crop((0, t, nw, t + nh))
+            else:
+                # photo aspect matches the destination ratio
+                image = image.resize((nw,nh), Image.ANTIALIAS)
+            image.save(path)
+            profile_photo = ProfilePhoto.objects.filter(user=request.user.id)
+            print(profile_photo)
+            if profile_photo:
+                profile_photo.delete()
+            u = MyUser.objects.get(id=request.user.id)
+            u.img = "/" + path
+            u.save()
+            print(u)
+            new_photo = ProfilePhoto(img_src=path,user=u)
+            new_photo.save()
+            print("profile_p_saved_success")
+            return HttpResponse(json.dumps(response), content_type="application/json")#return HttpResponseRedirect('/')
+    else:
+        form = UploadFileForm()
+    return render(request,'profile.html', {'form': form})
+
+def handle_uploaded_file(f,path):
+    
+    with open(path, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
 
 
 
 def main_page (request):
 
-    return render_to_response('index.html')
+    return render(request,'index.html')#render_to_response('index.html')
 
 def auth (request):
     #user = authenticate(email=email, password=password)
     #login(request, user)
-    return render_to_response('login.html')
+    return render(request,'login.html')#render_to_response('login.html')
 
 def blog (request):
     blog_posts = BlogPost.objects.all()
-    return render_to_response('blog.html',{"blog_posts": blog_posts})
+    return render(request,'blog.html',{"blog_posts": blog_posts})#render_to_response('blog.html',{"blog_posts": blog_posts})
 
 
 
@@ -71,12 +152,18 @@ def get_blog_post(request, blog_post_id):
         # если такого поста нет, то генерируем 404
         raise Http404
     # отрисовываем
-    return render_to_response('blog_post.html', {"title":  blog_post.title, "img": blog_post.img, "user": blog_post.user ,"id": blog_post.id, "text": blog_post.text,"comments": blog_comments})
+    return render(request,'blog_post.html', {"title":  blog_post.title, "img": blog_post.img, "user": blog_post.user ,"id": blog_post.id, "text": blog_post.text,"comments": blog_comments})#render_to_response('blog_post.html', {"title":  blog_post.title, "img": blog_post.img, "user": blog_post.user ,"id": blog_post.id, "text": blog_post.text,"comments": blog_comments})
 
 
 def profile (request):
-    
-    return render_to_response('profile.html')
+    form = UploadFileForm()
+    profile_photo = ProfilePhoto.objects.filter(user=request.user.id)
+    if profile_photo:
+        photo = "/" + profile_photo[0].img_src
+    else: 
+        photo = "http://robohash.org/sitsequiquia.png?size=120x120"
+
+    return render(request,'profile.html', {'form': form, 'photo': photo})#render_to_response('profile.html')
 
 
 def we (request):
@@ -84,8 +171,123 @@ def we (request):
     # Получаем список постов
     teams = Team.objects.all()
     # отрисовываем
-    return render_to_response('our_team.html', {"teams":  teams})
+    return render(request,'our_team.html', {"teams":  teams})#render_to_response('our_team.html', {"teams":  teams})
+def compute_rating(type_,id_):
+    rating = Rating.objects.filter(content_type=type_,object_id=id_)
+    print(id_)
+    print(len(rating))
+    sum = 0.0
+    votes = len(rating)
+    if votes != 0:
+        for rate in rating:
+            sum = sum + rate.mark
+        sum = sum / len(rating)
+    return sum 
 
+@csrf_protect
+def change_view_unlike(request):
+    if request.method == "POST":
+        print(request)
+        #if request.POST["content_type"] == "game":
+         #   print("ok")
+        content_object_ = Game.objects.get(id = int(request.POST["id"]))
+        content_object_type = ContentType.objects.get_for_model(content_object_)
+        was_rate = Rating.objects.filter(user = request.user.id,content_type= content_object_type.id,object_id = int(request.POST["id"]))
+        print(was_rate)
+        if request.POST["content_type"] == "game":
+            if was_rate:
+               was_rate.delete()
+               num = compute_rating(type_=content_object_type.id,id_=int(request.POST["id"]))
+               response = {
+                    'msg' : str(num),
+                    'status' : 'OK'
+                }
+            else:
+                response = {
+                    'msg' : "hack",
+                    'status' : 'error'
+                }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+def change_view(request):
+    if request.method == "POST":
+        print(request.user)
+        print(request.POST["votes"])
+        print(request.POST)
+        u = MyUser.objects.get(id=request.user.id)
+        new_voice = request.POST["score"]
+        content_object_type_id = 0
+        if request.POST["content_type"] == "game":
+            content_object_ = Game.objects.get(id = int(request.POST["id"]))
+            content_object_type = ContentType.objects.get_for_model(content_object_)
+            was_rate = Rating.objects.filter(user = request.user.id,content_type= content_object_type.id,object_id = int(request.POST["id"]))
+            content_object_type_id = content_object_type.id
+            print(was_rate)
+            if was_rate:
+                was_rate.delete()
+        print("ok")
+        new_rating = Rating(mark = float(new_voice), content_object = content_object_)
+        new_rating.save()
+        
+        u.rating_set.add(new_rating)
+        num = compute_rating(type_=content_object_type.id,id_=int(request.POST["id"]))
+        response = {
+            'msg' : str(num),
+            'status' : 'OK'
+        }
+        return HttpResponse(json.dumps(response), content_type="application/json")
+
+def post_comment(request):
+    if request.method == "POST":
+        print(request.user)
+        print(request.POST)
+        print(request.user.id)
+        form = CommentsForm(request.POST)
+        if form.is_valid() and request.POST["id"]!="":
+        # text_ = request.POST["text"]
+            game_id_ = request.POST["id"] 
+        # g = Game.objects.get(id=int(game_id_))
+        # u = MyUser.objects.get(id=request.user.id)
+        # e = Comment(text = text_)
+        # g.comment_set.add(e)
+        # u.comment_set.add(e)
+            new_comment = form.save()
+            g = Game.objects.get(id=int(game_id_))
+            u = MyUser.objects.get(id=request.user.id)
+            g.comment_set.add(new_comment)
+            u.comment_set.add(new_comment)
+            # comments = Comment.objects.filter(game=int(game_id_))
+            # #print(comments)
+
+            # objectQuerySet = Comment.objects.filter(game=int(game_id_))
+            # data = serializers.serialize('json', objectQuerySet, fields=('user','text','date'))
+            # data2 = json.loads(data)
+            # for d in data2:
+            #     d["fields"]["user"] = MyUser.objects.get(id=int(d["fields"]["user"])).username
+            #     #print(d)
+            # data = serializers.serialize('json', data2, fields=('user','text','date'))
+
+            # print(data)
+            # response = data
+
+            profile_photo = ProfilePhoto.objects.filter(user=request.user.id)
+
+            response = {
+                'user' : request.user.username,
+                'date' : new_comment.date.strftime('%Y-%m-%d %H:%M'),
+                'text' : new_comment.text,
+                'profile_photo': profile_photo[0].img_src,
+                'status' : 'OK',
+            }
+            print(response)
+            print("valid")
+        else:
+            response = {
+                'msg' : 'lel',
+                'status' : 'bad',
+            }
+            print("invalid")
+        return HttpResponse(json.dumps(response), content_type="application/json")
 
 def get_post (request, post_id):
     try:
@@ -99,6 +301,8 @@ def get_post (request, post_id):
             form = CommentsForm()
         # выбираем конкретный пост, pk - primary key
         post = Game.objects.get(pk=post_id)
+        post.show_times = post.show_times + 1
+        post.save()
         comments = Comment.objects.filter(game=post_id)
         images = Screenshot.objects.filter(game=post_id)
         post_type = ContentType.objects.get_for_model(post)
@@ -121,8 +325,10 @@ def get_post (request, post_id):
     # отрисовываем
     return render(request,'single.html', {"title":  post.title,
                                               "description": post.description,
-                                              "comments": comments ,"id": post.id,"images": images,"count": list,
-                                              "rating": sum,"votes": votes,'form': form
+                                              "comments": comments ,"id": post.id,"images": images,
+                                              "count": list,
+                                              "rating": str(sum),"votes": votes,
+                                              'form': form,'show_times': post.show_times
                                               })
 
 
@@ -150,7 +356,7 @@ def posts_page (request):
         # i = i + 1
         # print("______________") django agregation
     # отрисовываем
-    return render_to_response('list.html', {"posts":  games})
+    return render(request,'list.html', {"posts":  games})#render_to_response('list.html', {"posts":  games})
 
 
 

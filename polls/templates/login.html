@@ -45,6 +45,11 @@ $(document).ready(function(){
                     <div class="form-group">
 			    			<input class="form-control" placeholder="Password" name="password" type="password" value="">
 			    		</div>
+                        {% if form.errors %}
+        <p style="color: red;">
+            Please correct the error{{ form.errors|pluralize }} below.
+        </p>
+    {% endif %}
                     <button class="btn btn-lg btn-warning btn-block" type="submit">Sign in</button>
 			      	</form>
 			    </div>

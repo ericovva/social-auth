@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
+	<!--<meta charset="utf-8">-->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="viewport"    content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="">
-	<meta name="author"      content="Sergey Pozhilov (GetTemplate.com)">
+	<meta name="description" content="NOCH team">
+	<meta name="author"      content="EricOvva">
 	<title>{% block title %}  {% endblock %} </title>
 	{% block head %} {% endblock %}
-	<link rel="shortcut icon" href="http://127.0.0.1/static/assets/images/gt_favicon.png">
+	<link rel="shortcut icon" href="/static/assets/images/gt_favicon.png">
 	
 	<!-- Bootstrap itself -->
 	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
 	<!-- Custom styles -->
-	<link rel="stylesheet" href="http://127.0.0.1/static/assets/css/magister.css">
+	<link rel="stylesheet" href="/static/assets/css/magister.css">
 
 	<!-- Fonts -->
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -29,10 +30,10 @@
 			<button type="button" class="navbar-toggle" data-toggle="dropdown"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
 			<!-- <a data-toggle="dropdown" href="#">Dropdown trigger</a> -->
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-				<li><a href="http://127.0.0.1" class="active">NOCH</a></li>
-				<li><a href="http://127.0.0.1/posts">GAMES</a></li>
-				<li><a href="http://127.0.0.1/we">OUR TEAM</a></li>
-				<li><a href="http://127.0.0.1/blog">BLOG</a></li>
+				<li><a href="/" class="active">NOCH</a></li>
+				<li><a href="/posts">GAMES</a></li>
+				<li><a href="/we">OUR TEAM</a></li>
+				<li><a href="/blog">BLOG</a></li>
 				<!--<li><a href="#contact">Get in touch</a></li> -->
 			</ul>
 		</div>
@@ -41,11 +42,15 @@
 <div class="login">
 	<div class="container">
 		<div class="login_button_div">
-
-			<a href = "http://127.0.0.1/register" class = "btn btn-info"> Sign up</a>
+			{% if user.is_authenticated %}
+			<p> Welcome, {{ user.username }} </p>
+			<a href="/profile"> Profile </a> <br/>
+			<a href="/logout"> Log out </a>
+			{% else %}
+			<a href = "/register" class = "btn btn-info"> Sign up</a>
 			or
-			<a href="http://127.0.0.1/auth" class = "btn btn-warning"> Sign in</a>
-			
+			<a href="/auth" class = "btn btn-warning"> Sign in</a>
+			{% endif %}
 		</div>
 	</div>
 </div>
@@ -181,7 +186,7 @@ a.socialIcon:hover, .socialHoverClass {
 	</div>
 </section>
 
-<!-- Third (Works) section -->
+ <!-- Third (Works) section --> <!--
 <section class="section" id="themes">
 	<div class="container">
 	
@@ -258,13 +263,13 @@ a.socialIcon:hover, .socialHoverClass {
 
 	</div>
 </section>
-
+ -->
 
 <!-- Load js libs only when the page is loaded. -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-<script src="http://127.0.0.1/static/assets/js/modernizr.custom.72241.js"></script>
+<script src="/static/assets/js/modernizr.custom.72241.js"></script>
 <!-- Custom template scripts -->
-<script src="http://127.0.0.1/static/assets/js/magister.js"></script>
+<script src="/static/assets/js/magister.js"></script>
 </body>
 </html>

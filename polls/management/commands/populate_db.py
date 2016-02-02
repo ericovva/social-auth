@@ -25,7 +25,7 @@ class Command(BaseCommand):
             password_ = 'qwerty'
             username_ = 'Wolf' + str(i)
             img_ = str ( i % 7 + 1) + ".jpg"
-            new_user = MyUser(login = login_,password = password_,username = username_,img = img_)
+            new_user = MyUser(password = password_,username = username_,img = img_)
             new_user.save()
             i = i + 1
 
