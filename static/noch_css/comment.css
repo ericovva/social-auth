@@ -1,0 +1,45 @@
+
+.comment_img{
+position: relative;
+	margin: 10px; 
+	border-radius: 120px;
+	margin-top: 10px;
+	border: 0px white solid; 
+	padding: 0px; 
+	float:left;
+	z-index: 2;
+	
+}
+
+
+
+.comment_div{
+  float:left; 
+  margin-bottom: 10px; 
+  color: #f30; 
+  padding: 0px; 
+  border-radius: 15px; 
+  background-color: ;
+  z-index: 1;
+  width: 90%;
+  
+}
+
+
+.comment_text{
+	border-radius: 50px; 
+	margin: 4px; 
+	border: 0px; 
+	background-color: #444;
+	color: #fff;
+   font-weight: 500;
+   font-size: 1.001em;
+	opacity: 0.6;
+	z-index: 0;
+}
+.comment_username{
+	margin-top: 0px;
+}
+.comment_date{
+	color: grey;
+}

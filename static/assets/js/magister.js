@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
 	// Switch section
 	$("a", '.mainmenu').click(function() 
 	{
-		if (this.text != "NOCH" && this.text != "GAMES" && this.text != "OUR TEAM" && this.text != "BLOG"  ){
+		if (this.text != "NOCH" && this.text != "GAMES" && this.text != "ATOMS SHOP" && this.text != "BLOG"  ){
 		if( ! $(this).hasClass('active') ) { 
 			current_item = this;
 			

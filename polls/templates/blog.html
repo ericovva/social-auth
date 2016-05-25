@@ -7,13 +7,21 @@
 
 
 				<h1 class="subtitle">NOCH BLOG</h1>
+
+<script type="text/javascript" src="//vk.com/js/api/openapi.js?121"></script>
+
+<!— VK Widget —>
+<div id="vk_groups"></div>
+<script type="text/javascript">
+VK.Widgets.Group("vk_groups", {mode: 2, width: "700", height: "1000"}, 99292620);
+</script>
 				{% for post in blog_posts %}
 				<br/><br/>
 				<div style="color: white; font-size: 20px; font-family: Helvetica, Arial, sans-serif; width: 80%; margin: 0 auto;">
 					
 					<p style="text-align: right; font-size: 16px; color: light-grey;"> {{ post.date }} </p>
 					<a href="/blog_post/{{ post.id }}/">
-						<img src="http://127.0.0.1/static/{{ post.img }}" style="width: 100%;">
+						<img src="/static/{{ post.img }}" style="width: 100%;">
 					</a>
 
 					<div> 
@@ -23,7 +31,8 @@
 						</a>
 						</div>
 						
-					</div> 
+					</div>
+
 
 
 

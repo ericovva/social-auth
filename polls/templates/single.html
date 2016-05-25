@@ -2,8 +2,11 @@
 
 {% block title %}{{ title }} {% endblock %}
 {% block head %} 
-  <link href="/static/rating/styles/styles.css" rel="stylesheet" type="text/css" /> 
+
+<link href="/static/rating/styles/styles.css" rel="stylesheet" type="text/css" /> 
 <link href="/static/rating/styles/jquery.rating.css" rel="stylesheet" type="text/css" /> 
+<link href="/static/noch_css/comment.css" rel="stylesheet" type="text/css" /> 
+<link href="/static/noch_css/styles.css" rel="stylesheet" type="text/css" /> 
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 
 <script type="text/javascript">
@@ -13,9 +16,51 @@ window.jQuery || document.write('<script type="text/javascript" src="/static/rat
 <script type="text/javascript" src="/static/rating/js/jquery.rating-2.0.min.js"></script>
 
 <script type="text/javascript">
+  var global_answer_user_id = "";
+  var global_answer_comment_id = "";
+  /////////////
+  function goToByScroll(id,textarea_id,textarea,username){
+      // Remove "link" from the ID
+    id = id.replace("link", "");
+      // Scroll
+    $('html,body').animate({
+        scrollTop: $("#"+id).offset().top},
+        'fast',
+        function() {
+          document.getElementById(textarea_id).value = "";
+        $(textarea).focus();
+        document.getElementById(textarea_id).value = username;
+        }     
 
-jQuery(function($){
-  
+
+    );
+}
+function moveCaret(oTextArea,nPos)
+{
+   var rng=oTextArea.createTextRange();
+   rng.collapse()
+   rng.moveStart("character",nPos);
+   rng.select();
+}
+function answer(comment_id,user_id,username){
+    //console.log(comment_id,user_id);
+     
+     //$("#id_text").focus();
+    //document.getElementById("id_text").focus()
+    
+    global_answer_user_id = user_id;
+    global_answer_comment_id = comment_id;
+    goToByScroll('write_comment_div','id_text','#id_text',username.innerHTML + ", ");
+    
+   
+    //document.getElementById("id_text").focus()
+    
+}  
+
+  //////////////
+
+
+jQuery(function($){  
   var new_=""
   $("#form_unlike").submit(function(event){ 
             //alert('sdas')
@@ -86,6 +131,12 @@ jQuery(function($){
         }
 
   });
+  //////////эластичная текст арея//////
+  $('textarea').keyup(function(){
+    $(this).height(40);
+    $(this).height(this.scrollHeight);
+  });
+  ////////////////
 })
 </script>
  {% endblock %}
@@ -93,9 +144,9 @@ jQuery(function($){
 
 <h1 class="subtitle">{{ title }}</h1>
 
-<div class="wrap">
+<!-- <div class="wrap">
   <div class="border-wrap">
-    <h2 style = "text-align: left; color: #000;"><!-- Rating: {{rating}} Votes: {{votes}} --> Show: {{show_times}}  </h2>
+    <h2 style = "text-align: left; color: #000;"><!-- Rating: {{rating}} Votes: {{votes}}  Show: {{show_times}}  </h2>
     
     <form action="/change_view_unlike/" method="post" id="form_unlike" >
       {% csrf_token %}
@@ -115,7 +166,7 @@ jQuery(function($){
 
       
   </div>  
-</div>
+</div> -->
 
 <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
@@ -130,14 +181,14 @@ jQuery(function($){
   <!-- Wrapper for slides -->
   <div class="carousel-inner" >
     <div class="item active">
-        <img src="/static/screenshots/1.jpg" alt="">
+        <img src="/media/{{first_img_link}}" alt="">
         
         <div class="item-box top left"></div>
         <div class="item-box top right"></div>
     </div>
       {% for img in images%}
       <div class="item">
-        <img src="/static/screenshots/{{img.img}}" alt="">
+        <img src="/media/{{img.img}}" alt="">
         
         <div class="item-box top left"></div>
         <div class="item-box top right"></div>
@@ -154,8 +205,18 @@ jQuery(function($){
     <span class="glyphicon glyphicon-chevron-right"></span>
   </a>
 </div>
-
 <br/>
+ <div id="rating_3">
+                
+                {% csrf_token %}
+                <input type="hidden" name="val" value="{{rating}}"/>
+                <input type="hidden" name="votes" value="{{votes}}"/>
+                <input type="hidden" name="content_type" value="game"/>
+                <input type="hidden" name="id" value="{{id}}"/>
+                
+  </div>
+
+
 <br/>
 <div style="color: #fff; text-align: left;">
   <pre style="font-size: 16px; ">
@@ -164,40 +225,55 @@ jQuery(function($){
 </div>
 
 <br/><br/>
-<h2 style="float: left;font-size: 24px;color: #fff;">Comments </h2>
+<!-- ===============Write comment============= -->
+
+<div id = "write_comment_div" >
+<p style="color: white;float:left;font-size: 24px; padding: 5px;"> Write a comment<p> <br><br>
+      {% if user.is_authenticated %}
+    <form action="/post_comment/" method="post" id="form_comment">
+      {% csrf_token %}
+      {{ form.text }}
+    <button id = "post_comment" class="btn btn-lg btn-warning btn-block" type="submit" >Отправить</button>
+    </form>
+
+    {% endif %}
+</div>
+  <br/> </br>
+<!-- ============================ -->
+<!-- {% if comments|length > 0 %}
+<h2 style="float: left;font-size: 24px;color: #fff;">Комментарии </h2>
+{% endif %} -->
 <br/><br/><br/>
-<style>
-.comment_div{
-  float:left; margin-bottom: 27px; color: #000; padding: 15px; border-radius: 15px; background-color: white; width: 100%;
-}
-</style>
+
 <div style="color: #000; text-align: left;" id = "comment_block">
     {% if comments|length > 0 %}
 
         {% for comment in comments %}
 
-          <div style="float:left; margin-bottom: 27px; color: #000; padding: 15px; border-radius: 15px; background-color: white; width: 100%;">
+    <div class="comment_div" onclick="answer({{comment.id}},{{comment.user.id}},this.childNodes[3])">
                  
-             <img width='130px' height='130px' style="margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;" 
+             <img width='130px' height='130px' class="comment_img"
              {% if comment.user.img %} src = "{{comment.user.img}}"> 
              {% else %}
              src = "https://pp.vk.me/c625430/v625430637/13a64/q0rT612i538.jpg">
              {%endif%}
-             <p style="margin-top: 20px;"> {{comment.user.username}} </p>
-             <p style="color: grey;"> {{comment.date}} </p>
+             <p class="comment_username"> {{comment.user.username}} </p>
+             <p class="comment_date"> {{comment.date}} </p>
+             <!-- <p style="display: none;"> {{comment.id}} </p>
+             <p style="display: none;"> {{comment.user.id}} </p> -->
              <hr/>
-              <pre style="border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;">
+              <pre class="comment_text">
 {{ comment.text }}
 
               </pre>
-            </div>
+    </div>
 
         {% endfor %}
 
     {% else %}
-            <pre>
-              No comments yet...
-            </pre>
+ <!--            <pre>
+No comments yet...
+            </pre> -->
     {% endif %}
    
     <script>
@@ -206,7 +282,10 @@ jQuery(function($){
 
        $("#form_comment").submit(function(event){
             //console.log($(this));
-            var a = $(this).serialize() + "&id={{ id }}"
+            var a = $(this).serialize() + "&id={{ id }}" 
+                    + "&to_user_id=" + global_answer_user_id 
+                    + "&answer_to_comment_id=" + global_answer_comment_id;
+            console.log(a);
             $.ajax({
                  type:"POST",
                  url:"/post_comment/",
@@ -216,12 +295,14 @@ jQuery(function($){
                      //alert(JSON.parse(json)[0]["fields"]["text"]);
                      //var comments = JSON.parse(json)
                      //add one comment//
-                    
-                     var img =  "<img width=\'130px\' height=\'130px\' style=\"margin: 10px; margin-top: 10px;border: 2px grey solid; border-radius: 130px; padding: 2px; float:left;\" src = \"/"  +  json['profile_photo'] +"\">"
-                      var p1 = "<p style=\"margin-top: 20px;\">"
-                      var p2 = "<p style=\"color: grey;\">" 
-                      var pre = "<hr/><pre style=\"border-radius: 25px; margin: 4px; border: 0px; background-color: #fff;\">"
-                     $( "#comment_block" ).append( "<div class=\"comment_div\">" 
+                    //alert(global_answer_user_id);
+                    var img =  "<img width=\'130px\' height=\'130px\' class=\"comment_img\" src = \"/"
+                                +json['profile_photo'] +"\">"
+                      var p1 = "<p class=\"comment_username\">"
+                      var p2 = "<p class=\"comment_date;\">" 
+                      var pre = "<hr/><pre class=\"comment_text\">"
+
+                     $( "#comment_block" ).prepend( "<div class=\"comment_div\">" 
                             + img + "</img>" 
                             + p1 + json["user"] + "</p>"
                             + p2 + json["date"] + "</p>"
@@ -259,15 +340,7 @@ jQuery(function($){
     </script>
     
   </div>
-   <p style="color: white;margin-left: 32px;font-size: 20px;"> Прокомментировать игру <p>
-      {% if user.is_authenticated %}
-    <form action="/post_comment/" method="post" id="form_comment">
-      {% csrf_token %}
-      {{ form.text }}
-    </br></br>
-      <button id = "post_comment" class="btn btn-lg btn-warning btn-block" type="submit" style="width: 300px; margin-left: 32px;">Post comment</button>
-    </form>
-    {% endif %}
+   
 
 
 

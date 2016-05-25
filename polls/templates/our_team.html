@@ -1,23 +1,47 @@
 {% extends "base.html" %}
 
 
-{% block title %}OUR TEAM{% endblock %}
+{% block title %}ATOM SHOP{% endblock %}
+
+{% block head %} 
+<!--<link rel="stylesheet" type="text/css" href="/static/hover_effects/css/demo.css" /> так и не понял зачем нужен-->
+<link rel="stylesheet" type="text/css" href="/static/hover_effects/css/style.css" />
+<script src="/static/hover_effects/js/modernizr.custom.97074.js"></script>
+<noscript><link rel="stylesheet" type="text/css" href="/static/hover_effects/css/noJS.css"/></noscript>
+{% endblock %}
+
 
 {% block content %}
+
+<h1 class="title"> ATOM SHOP </h1>
 <div class="row"> 
+	<ul id="da-thumbs" class="da-thumbs">
 {% for team in teams %}
 
 			<!--<div class="col-sm-4 {% if team.id == 0 or team.id == 1  %} col-sm-offset-2 {% endif %}"> -->
-			<div class="col-sm-4 ">
-				<div class="thumbnail">
-				 <img src="http://127.0.0.1/static/{{ team.img }}" alt=""> 
-				</div>
-				
-			</div>
+	
+	<li class="col-sm-5" > 
+		<a href="">
+			<img src="/media/{{ team.img }}" width = "100%;"/>
+			<div><span>{{team.text}}</span></div>
+		</a>
+	</li>
 
 {% endfor %}
+</ul>
+</div>	
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="/static/hover_effects/js/jquery.hoverdir.js"></script>
+<script type="text/javascript">
+	(function($) {
+		
+		$(' #da-thumbs > li ').each( function() { $(this).hoverdir(); } );
+		
+	})(jQuery);
+</script>
+	
 
 
 
-</div>
+
 {% endblock %}

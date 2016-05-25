@@ -1,0 +1,30 @@
+#write_comment_div{
+}
+#form_comment{
+	//float: left;
+	width: 100%;
+}
+#id_text{
+	padding: 5px;
+	opacity: 0.95;
+	float: left;
+	width: 80%;
+	height: 40px;
+	min-height:40px; margin:0px;  resize:none; overflow:hidden;
+	margin-bottom: 10px;
+}
+#post_comment{
+	float: left;
+	padding: 10px 0px 10px 0px;	
+	width: 17%;
+	margin: 4px;
+	margin-top: 0px;
+
+
+}
+#write_comment_div{
+	float: left;
+	height: auto;
+	width: 100%;
+
+}

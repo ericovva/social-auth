@@ -13,17 +13,17 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-
 from django.conf.urls import include, url
 from django.contrib import admin
 
-from polls.views import main_page, get_post, posts_page, auth, we , blog, profile, get_blog_post,post_comment,upload_file,logout_view
+from polls.views import main_page, get_post, posts_page, auth, we , blog, profile, get_blog_post,post_comment,upload_file,logout_view, oauth2login_view
 from polls import views
 
 from django.conf.urls import patterns
 
 from django.conf import settings
-
+#from django.views.generic.simple import redirect_to
+from django.views.generic import RedirectView
 admin.autodiscover()
 
 urlpatterns = [
@@ -44,6 +44,17 @@ urlpatterns = [
                        url(r'post_comment/$', views.post_comment, name='post_comment'),
                        url(r'upload_file/$', views.upload_file, name='upload_file'),
                        url(r'logout/$', views.logout_view, name='logout_view'),
+                       url(r'', include('social_auth.urls')),
+                       # url(r'^login/$', RedirectView.as_view(url='/login/vk-oauth/')),
+                       # url(r'^private/$', profile),
+                       url(r'^app/', include('social.apps.django_app.urls', namespace='social')),
+                       url(r'^app/oauth2login$', views.oauth2login_view),  # views for auth
+                       url(r'^vk/', views.vk, name = 'vk'),
+                       # eta xuinya xz che
+                       # url('', include('social.apps.django_app.urls', namespace='social')),
+                       # url('', include('django.contrib.auth.urls', namespace='auth')),
+
+                       
               
 ]
 if settings.DEBUG:

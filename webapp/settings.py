@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -40,6 +39,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
                 'bootstrap3',
                 'polls',
+                #'social_auth',
+                'social.apps.django_app.default',
                 
 )
 
@@ -112,27 +113,75 @@ STATICFILES_FINDERS = (
 TEMPLATE_DIRS = (
                  "/Users/erik/Movies/webapp/polls/templates",
                  )
-
+####works##
 # AUTHENTICATION_BACKENDS = (
 #     'social_auth.backends.twitter.TwitterBackend',
 #     'social_auth.backends.facebook.FacebookBackend',
 #     'social_auth.backends.contrib.vk.VKOAuth2Backend',
-#     'social_auth.backends.google.GoogleOAuth2Backend',
-#     'social_auth.backends.contrib.github.GithubBackend',
 #     'django.contrib.auth.backends.ModelBackend',
 # )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.request',
-    #'social_auth.context_processors.social_auth_by_name_backends',
-)
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     'django.contrib.auth.context_processors.auth',
+#     'django.core.context_processors.request',
+#     'social_auth.context_processors.social_auth_by_name_backends',
+# )
 
+# VK_APP_ID = '5286780'
+# VKONTAKTE_APP_ID = VK_APP_ID
+# VK_API_SECRET = 'k6piL98lxkLhmwInHYUj'
+# VKONTAKTE_APP_SECRET = VK_API_SECRET
+# # SOCIAL_AUTH_DEFAULT_USERNAME = lambda: random.choice(['Darth_Vader', 'Obi-Wan_Kenobi', 'R2-D2', 'C-3PO', 'Yoda'])
+# SOCIAL_AUTH_DEFAULT_USERNAME = 'new_social_auth_user'
+# LOGIN_URL = '/login_vk/'
+# LOGIN_REDIRECT_URL = '/private/'
+# LOGIN_ERROR_URL = '/login-error/'
+#####
 
 # SOCIAL_AUTH_DEFAULT_USERNAME = lambda: random.choice(['Darth_Vader', 'Obi-Wan_Kenobi', 'R2-D2', 'C-3PO', 'Yoda'])
 
 # SOCIAL_AUTH_CREATE_USERS = True
+SOCIAL_AUTH_VK_OAUTH2_KEY = '5286780'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'k6piL98lxkLhmwInHYUj'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://nochgames.ru/'
+# SOCIAL_AUTH_LOGIN_URL = '/app/oauth2login/'  # url for callback
+#SOCIAL_AUTH_USER_MODEL = 'polls.models.MyUser'  # custom user
+SOCIAL_AUTH_UID_LENGTH = 223
+SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
+SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
+SOCIAL_AUTH_SANITIZE_REDIRECTS = False
+# SOCIAL_AUTH_PIPELINE = (
+#     'social.pipeline.social_auth.social_details',
+#     'social.pipeline.social_auth.social_uid',
+#     'social.pipeline.social_auth.auth_allowed',
+#     'social.pipeline.social_auth.social_user',
+#     'social.pipeline.user.get_username',
+#     'polls.views.login_vk',  # method wich works with social network
+#     'social.pipeline.social_auth.associate_user',
+#     'social.pipeline.social_auth.load_extra_data',
+#     'social.pipeline.user.user_details',
+# )
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.get_username',
+    'social.pipeline.social_auth.associate_by_email',  # <--- enable this one
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'polls.views.login_vk',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details',
+)
 
+#  'social.apps.django_app.default', into INSTALLED_APPS
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.vk.VKOAuth2',  # and other
+    #   setups and becks https://python-social-auth.readthedocs.org/en/latest/backends/index.html
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # SOCIAL_AUTH_PIPELINE = (
 

@@ -33,6 +33,8 @@ from django.core import serializers
 from django.core.mail import send_mail
 from .forms import UploadFileForm
 from PIL import Image
+#new
+from django.core.mail import EmailMultiAlternatives
 
 def logout_view(request):
   logout(request)
@@ -58,6 +60,28 @@ class RegisterFormView(FormView):
         send_mail('Regisration complete', mes, 'from@example.com',
     ['ericovva@yandex.ru'], fail_silently=False)
         return super(RegisterFormView, self).form_valid(form)
+
+from social.apps.django_app.utils import psa
+@psa('social:complete')
+def login_vk(request, backend):
+    token = request.GET.get('access_token')
+    user = request.backend.do_auth(request.GET.get('access_token'))
+    if user:
+        login(request, user)
+        return 'OK'
+    else:
+        return 'ERROR'
+  
+
+    return HttpResponseRedirect("/app/oauth2login")
+def oauth2login_view(request, **kwargs):
+    print('sada')
+    # access_token = request.GET.get('access_token')
+    # user = backend.do_auth(access_token)
+    # if user and user.is_active:
+    #     login(request, user)
+    return HttpResponseRedirect("/profile")
+
 from django.views.decorators.csrf import csrf_exempt 
 
 @csrf_exempt
@@ -245,7 +269,28 @@ def post_comment(request):
         form = CommentsForm(request.POST)
         if form.is_valid() and request.POST["id"]!="":
         # text_ = request.POST["text"]
+            print("==========")
+            print(request.POST["to_user_id"])
+            print(request.POST["answer_to_comment_id"])
+            if request.POST["to_user_id"]!="" and request.POST["answer_to_comment_id"]!="":
+                to_user_id = MyUser.objects.get(id=int(request.POST["to_user_id"]));
+                print(to_user_id.email)
+                answer_to = Comment.objects.get(id=int(request.POST["answer_to_comment_id"]));
+                print(answer_to)
+                mes = "http://playnoch.cloudapp.net/post/" + str(request.POST["id"]) + "/" 
+                print("==========")
+                #send_mail("На ваш комментарий <<" + answer_to.text + ">>", mes, 'from@example.com',[to_user_id.email], fail_silently=False)
+                ###########
+                subject, from_email, to = 'Ёу, ' + to_user_id.username, 'from@example.com', to_user_id.email
+                text_content = 'This is an important message.'
+                html_content = "<div style=\'font-size:30px; color: red;\'>NOCH</div><pre>На твой комментарий, <a href=\'" + mes + "\'>ответил</a>  " + request.user.username + "</pre>"
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()  
+                #########
+
             game_id_ = request.POST["id"] 
+
         # g = Game.objects.get(id=int(game_id_))
         # u = MyUser.objects.get(id=request.user.id)
         # e = Comment(text = text_)
@@ -269,16 +314,25 @@ def post_comment(request):
 
             # print(data)
             # response = data
-
+            
             profile_photo = ProfilePhoto.objects.filter(user=request.user.id)
+            print(profile_photo)
+            photo_src = "media/profile.png"
+            print("2==============")
+            print(profile_photo)
+            if len(profile_photo) > 0:
+                print("in")
+                photo_src = profile_photo[0].img_src
 
+            print("3==============")
             response = {
                 'user' : request.user.username,
                 'date' : new_comment.date.strftime('%Y-%m-%d %H:%M'),
                 'text' : new_comment.text,
-                'profile_photo': profile_photo[0].img_src,
+                'profile_photo': photo_src,
                 'status' : 'OK',
             }
+            print("4==============")
             print(response)
             print("valid")
         else:
@@ -303,7 +357,7 @@ def get_post (request, post_id):
         post = Game.objects.get(pk=post_id)
         post.show_times = post.show_times + 1
         post.save()
-        comments = Comment.objects.filter(game=post_id)
+        comments = Comment.objects.filter(game=post_id).order_by("date").reverse()
         images = Screenshot.objects.filter(game=post_id)
         post_type = ContentType.objects.get_for_model(post)
         rating = Rating.objects.filter(content_type=post_type.id,object_id=post_id)
@@ -316,17 +370,25 @@ def get_post (request, post_id):
             sum = sum / len(rating)
             
         count = len(images)
-        list = []
+        images_list = list(images)
+        first_img_link = ""
+        if len(images_list) > 0:
+            first_img_link = images_list[0].img
+            images_list.pop(0)
+        else: 
+            first_img_link = "screenshots/default.jpg"
+        lists = []
         for i in range(0,count):
-            list.append(i)
+            lists.append(i)
     except Game.DoesNotExist:
         # если такого поста нет, то генерируем 404
         raise Http404
     # отрисовываем
     return render(request,'single.html', {"title":  post.title,
                                               "description": post.description,
-                                              "comments": comments ,"id": post.id,"images": images,
-                                              "count": list,
+                                              "comments": comments ,"id": post.id,
+                                              "images": images_list,"first_img_link": first_img_link,
+                                              "count": lists,
                                               "rating": str(sum),"votes": votes,
                                               'form': form,'show_times': post.show_times
                                               })
@@ -359,7 +421,9 @@ def posts_page (request):
     return render(request,'list.html', {"posts":  games})#render_to_response('list.html', {"posts":  games})
 
 
+def vk (request):
 
+    return render(request,'auth.html');
 
 
 

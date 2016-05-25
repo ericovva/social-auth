@@ -65,7 +65,7 @@ class Team(models.Model):
     title = models.CharField(max_length=100)
     # содержимое поста
     text = models.TextField()
-    img = models.ImageField(null=True)
+    img = models.ImageField(upload_to='team/',null=True)
     # функция необходима для того, чтобы при выводе объекта Post
     # как строки выводился вместо этого его title
     def __unicode__(self):

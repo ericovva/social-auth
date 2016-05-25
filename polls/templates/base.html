@@ -8,14 +8,14 @@
 	<meta name="author"      content="EricOvva">
 	<title>{% block title %}  {% endblock %} </title>
 	{% block head %} {% endblock %}
-	<link rel="shortcut icon" href="/static/assets/images/gt_favicon.png">
+	<link rel="shortcut icon" href="/static/assets/images/favicon.ico">
 	
 	<!-- Bootstrap itself -->
 	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
 	<!-- Custom styles -->
 	<link rel="stylesheet" href="/static/assets/css/magister.css">
-
+	<link rel="stylesheet" href="/static/assets/NOCH_fonts/stylesheet.css">
 	<!-- Fonts -->
 	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 	<link href='http://fonts.googleapis.com/css?family=Wire+One' rel='stylesheet' type='text/css'>
@@ -24,42 +24,49 @@
 <!-- use "theme-invert" class on bright backgrounds, also try "text-shadows" class -->
 <body class="theme-invert">
 
-<nav class="mainmenu">
-	<div class="container">
+<nav class="mainmenu" style="height: 30px;">
+	<div class="container" >
 		<div class="dropdown">
 			<button type="button" class="navbar-toggle" data-toggle="dropdown"><span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
 			<!-- <a data-toggle="dropdown" href="#">Dropdown trigger</a> -->
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-				<li><a href="/" class="active">NOCH</a></li>
-				<li><a href="/posts">GAMES</a></li>
-				<li><a href="/we">OUR TEAM</a></li>
-				<li><a href="/blog">BLOG</a></li>
+			<!--<font face="Archive"> </font>-->
+				<li><a href="/"><font face="Archive">NOCH</font></a></li>
+				<li><a href="/posts"><font face="Archive">GAMES</font></a></li>
+				<li><a href="/we"><font face="Archive">ATOMS SHOP</font></a></li>
+				<li><a href="/blog"><font face="Archive">BLOG</font></a></li>
 				<!--<li><a href="#contact">Get in touch</a></li> -->
 			</ul>
 		</div>
 	</div>
 </nav>
 <div class="login">
-	<div class="container">
+	<div class="container" >
 		<div class="login_button_div">
 			{% if user.is_authenticated %}
-			<p> Welcome, {{ user.username }} </p>
-			<a href="/profile"> Profile </a> <br/>
-			<a href="/logout"> Log out </a>
+			
+			<p>{{ user.username }} </p>
+			<a href="/profile"><font face="Archive"> PROFILE </a></font> <br/>
+			<a href="/logout"><font face="Archive"> LOG OUT </a></font>
+			
+
 			{% else %}
-			<a href = "/register" class = "btn btn-info"> Sign up</a>
-			or
-			<a href="/auth" class = "btn btn-warning"> Sign in</a>
+			<a href = "/register" class = "btn btn-info"><font face="Archive">  Sign up</font></a>
+			<font face="Archive">or</font>
+			<a href="/auth" class = "btn btn-warning"><font face="Archive">  Sign in</font></a>
 			{% endif %}
 		</div>
 	</div>
 </div>
 
 
+
+
+
 <!-- Main (Home) section -->
 <section class="section" id="head">
 	
-	<div class="container">
+	<div class="container" style="z-index: 20;">
 
 		<div class="row">
 			<div class="col-md-10 col-lg-10 col-md-offset-1 col-lg-offset-1 text-center">	
@@ -74,9 +81,6 @@
 <style>
 
 
-/*=========================
-  Icons
- ================= */
 
 /* footer social icons */
 ul.social-network {
@@ -133,19 +137,19 @@ a.socialIcon:hover, .socialHoverClass {
 	-webkit-transform: rotate(360deg);
 	-ms--transform: rotate(360deg);
 	transform: rotate(360deg);
-	-webkit-transition: all 0.2s;
-	-moz-transition: all 0.2s;
-	-o-transition: all 0.2s;
-	-ms-transition: all 0.2s;
-	transition: all a0.2s;
+	-webkit-transition: all 0.4s;
+	-moz-transition: all 0.4s;
+	-o-transition: all 0.4s;
+	-ms-transition: all 0.4s;
+	transition: all 0.4s;
 }
 .social-circle i {
 	color: #fff;
-	-webkit-transition: all 0.8s;
-	-moz-transition: all 0.8s;
-	-o-transition: all 0.8s;
-	-ms-transition: all 0.8s;
-	transition: all 0.8s;
+	-webkit-transition: all 1.8s;
+	-moz-transition: all 1.8s;
+	-o-transition: all 1.8s;
+	-ms-transition: all 1.8s;
+	transition: all 1.8s;
 }
 
 
@@ -156,8 +160,8 @@ a.socialIcon:hover, .socialHoverClass {
        <div class="col-md-12" > <div style="margin-left: auto; margin-right: auto; width: 200px;">
                     <ul class="social-network social-circle" style="margin-left: auto; margin-right: auto;">
                         <li><a href="https://vk.com/game_noch" target="blank" class="icoVk" title="Vk"><i class="fa fa-vk"></i></a></li>
-                        <li><a href="#" class="icoFacebook" target="blank" title="Facebook"><i class="fa fa-facebook"></i></a></li>
-                        <li><a href="#" class="icoTwitter" target="blank" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+                        <li><a href="https://www.facebook.com/groups/187830078259226/?ref=bookmarks" class="icoFacebook" target="blank" title="Facebook"><i class="fa fa-facebook"></i></a></li>
+                        <li><a href="https://twitter.com/NOCHGAMES_RU" class="icoTwitter" target="blank" title="Twitter"><i class="fa fa-twitter"></i></a></li>
                         
                         
                     </ul>			</div>		
@@ -173,12 +177,10 @@ a.socialIcon:hover, .socialHoverClass {
 		<h2 class="text-center title">About me</h2>
 		<div class="row">
 			<div class="col-sm-4 col-sm-offset-2">    
-				<h5><strong>Where's my lorem ipsum?<br></strong></h5>
-				<p>Well, here it is: Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorum, ullam, ducimus, eaque, ex autem est dolore illo similique quasi unde sint rerum magnam quod amet iste dolorem ad laudantium molestias enim quibusdam inventore totam fugit eum iusto ratione alias deleniti suscipit modi quis nostrum veniam fugiat debitis officiis impedit ipsum natus ipsa. Doloremque, id, at, corporis, libero laborum architecto mollitia molestiae maxime aut deserunt sed perspiciatis quibusdam praesentium consectetur in sint impedit voluptates! Deleniti, sequi voluptate recusandae facere nostrum?</p>    
+				 
 			</div>
 			<div class="col-sm-4">
-				<h5><strong>More, more lipsum!<br></strong></h5>    
-				<p>Tempore, eos, voluptatem minus commodi error aut eaque neque consequuntur optio nesciunt quod quibusdam. Ipsum, voluptatibus, totam, modi perspiciatis repudiandae odio ad possimus molestias culpa optio eaque itaque dicta quod cupiditate reiciendis illo illum aspernatur ducimus praesentium quae porro alias repellat quasi cum fugiat accusamus molestiae exercitationem amet fugit sint eligendi omnis adipisci corrupti. Aspernatur.</p>    
+				
 				<h5><strong>Author links<br></strong></h5>    
 				<p><a href="http://be.net/pozhilov9409">Behance</a> / <a href="https://twitter.com/serggg">Twitter</a> / <a href="http://linkedin.com/pozhilov">LinkedIn</a> / <a href="https://www.facebook.com/pozhilov">Facebook</a></p>
 			</div>
@@ -250,9 +252,7 @@ a.socialIcon:hover, .socialHoverClass {
 
 		<div class="row">
 			<div class="col-sm-8 col-sm-offset-2 text-center">
-				<p class="lead">Have a question about this template, or want to suggest a new feature?</p>
-				<p>Feel free to email me, or drop me a line in Twitter!</p>
-				<p><b>gt@gettemplate.com</b><br><br></p>
+				<p class="lead"></b><br><br></p>
 				<ul class="list-inline list-social">
 					<li><a href="https://twitter.com/serggg" class="btn btn-link"><i class="fa fa-twitter fa-fw"></i> Twitter</a></li>
 					<li><a href="https://github.com/pozhilov" class="btn btn-link"><i class="fa fa-github fa-fw"></i> Github</a></li>
