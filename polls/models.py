@@ -6,59 +6,157 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 # и админки
 from django.contrib import admin
-from django.contrib.auth.models import User, UserManager
+# from django.contrib.auth.models import User, UserManager
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 '''
     Blog posts
     '''
-class MyUser(User):
-    img = models.CharField(max_length=100,default="http://robohash.org/sitsequiquia.png?size=120x120")
-    objects = UserManager()
+# class MyUser(User):
+#     img = models.CharField(max_length=100,default="http://robohash.org/sitsequiquia.png?size=120x120")
+#     objects = UserManager()
+
+import pprint
+class MyUserManager(BaseUserManager):
+    def create_user(self, email, username, password=None):
+        """
+        Creates and saves a User with the given email, date of
+        birth and password.
+        """
+        error = 0
+        try:
+            MyUser.objects.get(email=email)
+            print 'KKK\n'
+            error = 1
+        except Exception as e:
+            print e
+        if not email:
+            raise ValueError('Users must have an email address')
+        if error:
+            raise ValueError('Пользователь был создан раннее')
+            return
+        print 'SADSADS\n'
+        user = self.model(
+            email=self.normalize_email(email),username=username,
+        )
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password):
+        """
+        Creates and saves a superuser with the given email, date of
+        birth and password.
+        """
+        user = self.create_user(email,
+            password=password,username=username,
+        )
+        user.is_admin = True
+        user.save(using=self._db)
+        return user
+
+class MyUser(AbstractBaseUser):
+    #id = models.AutoField(primary_key=True,default = False,)
+    username = models.CharField(max_length=100)
+    email = models.EmailField(
+        verbose_name='email address',
+        max_length=255,
+        unique=True,
+        default=False,
+    )
+    img = models.ImageField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    objects = MyUserManager()
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+    def get_full_name(self):
+        # The user is identified by their email address
+        return self.email
+
+    def get_short_name(self):
+        # The user is identified by their email address
+        return self.email
+
+    def __str__(self):              # __unicode__ on Python 2
+        return self.email
+
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
+
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+    @property
+    def is_staff(self):
+        "Is the user a member of staff?"
+        # Simplest possible answer: All admins are staff
+        return self.is_admin
 
 
-# class MyUserManager(BaseUserManager):
-#     def create_user(self, email, password=None):
-#         """
-#         Creates and saves a User with the given email, date of
-#         birth and password.
-#         """
-#         if not email:
-#             raise ValueError('Users must have an email address')
-
+# class MySocialUserManager(BaseUserManager):
+#     def create_user(self, social_and_uid, username, token, email = None):
+#         error = 0
+#         try:
+#             MySocialUser.objects.get(social_and_uid=social_and_uid)
+#             print 'User exists\n'
+#             error = 1
+#         except Exception as e:
+#             print e
+#         if not social_and_uid:
+#             raise ValueError('Users must have an social_and_uid field')
+#         if error:
+#             raise ValueError('Пользователь был создан раннее')
+#             return
+#         print 'Creating social user...\n'
 #         user = self.model(
+#             social_and_uid = social_and_uid,
+#             username=username,
+#             token = token,
 #             email=self.normalize_email(email),
 #         )
-
-#         user.set_password(password)
 #         user.save(using=self._db)
 #         return user
 
-#     def create_superuser(self, email, password):
-#         """
-#         Creates and saves a superuser with the given email, date of
-#         birth and password.
-#         """
-#         user = self.create_user(email,
-#             password=password,
-#         )
-#         user.is_admin = True
-#         user.save(using=self._db)
-#         return user
-
-# class MyUser(AbstractBaseUser):
-#     #id = models.AutoField(primary_key=True,default = False,)
-
-#     email = models.EmailField(
-#         verbose_name='email address',
-#         max_length=255,
-#         unique=True,
-#         default=False,
-#     )
+# class MySocialUser(AbstractBaseUser):
+#     social_and_uid = models.CharField(max_length = 100,unique=True,default=False,verbose_name='social_and_uid   ')
+#     username = models.CharField(max_length=100)
+#     token = models.CharField(max_length=100)
+#     email = models.EmailField(verbose_name='email address',max_length=255,default=False,)
 #     img = models.ImageField(null=True)
 #     is_active = models.BooleanField(default=True)
 #     is_admin = models.BooleanField(default=False)
-#     objects = MyUserManager()
-#     USERNAME_FIELD = 'email'
+#     objects = MySocialUserManager()
+#     USERNAME_FIELD = 'social_and_uid'
+#     def get_full_name(self):
+#         # The user is identified by their email address
+#         return self.social_and_uid
+
+#     def get_short_name(self):
+#         # The user is identified by their email address
+#         return self.social_and_uid
+
+#     def __str__(self):              # __unicode__ on Python 2
+#         return self.social_and_uid
+
+#     def has_perm(self, perm, obj=None):
+#         "Does the user have a specific permission?"
+#         # Simplest possible answer: Yes, always
+#         return True
+
+#     def has_module_perms(self, app_label):
+#         "Does the user have permissions to view the app `app_label`?"
+#         # Simplest possible answer: Yes, always
+#         return True
+#     @property
+#     def is_staff(self):
+#         "Is the user a member of staff?"
+#         # Simplest possible answer: All admins are staff
+#         return self.is_admin
+
 
 class Team(models.Model):
     # название поста
@@ -69,7 +167,7 @@ class Team(models.Model):
     # функция необходима для того, чтобы при выводе объекта Post
     # как строки выводился вместо этого его title
     def __unicode__(self):
-        return self.title;
+        return self.title
 
 class Game(models.Model):
     text = models.TextField()
@@ -85,7 +183,7 @@ class Game(models.Model):
     # функция необходима для того, чтобы при выводе объекта Post
     # как строки выводился вместо этого его title
     def __unicode__(self):
-        return self.title;
+        return self.title
 
 class Comment(models.Model):
     text = models.TextField(max_length=10000)

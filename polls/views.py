@@ -15,12 +15,11 @@ from polls.models import CommentBlogPost
 from polls.models import Screenshot
 from polls.models import Rating
 from polls.models import ProfilePhoto
-from polls.models import MyUser
+from polls.models import MyUser, MyUserManager
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate,login,logout
 from polls.forms import CustomUserCreationForm, CommentsForm
 from django.views.generic.edit import FormView
 from django.contrib.auth.forms import UserCreationForm
@@ -40,47 +39,129 @@ def logout_view(request):
   logout(request)
   # Redirect to a success page.
   return HttpResponseRedirect("/")
+import pprint
 
-class LoginFormView(FormView):
-    form_class = AuthenticationForm
-    template_name = "login.html"
-    success_url = "/" 
-    def form_valid(self, form):
-        self.user = form.get_user()
-        login(self.request, self.user)
-        return super(LoginFormView, self).form_valid(form)
+def login_email(request):
+    error = ''
+    if (request.POST):
+        email = request.POST['email']
+        password = request.POST['password']
+        print email,password,'IN AUTH'
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect("/profile")
+            else:
+                error = 'Аккаунт не активен'
+        else:
+            error = 'Данные введены неверно, повторите попытку'
+    return render(request,'login.html', {'error': error}) 
+from django.core.validators import validate_email
+def do_registration(username,email,password,password2,request,vk_info):
+    if username and email and password and password2:
+        if password2 == password:
+            try:
+                validate_email(email)
+            except: 
+                return render(request,'register.html', {'error': 'Email некорректный'})
+            print username, email, password, password2
+            exception = 0
+            try:
+                MyUser.objects.create_user(email,username,password)
+                exception = 1
+            except ValueError as v: 
+                print v    
+                return render(request,'register.html', {'error': v}) 
+            if exception:
+                return login_email(request)
+        else:
+            return render(request,'register.html', {'error': 'Пароли не совпадают'}) 
+    else:
+       return render(request,'register.html', {'error': 'Заполните все поля'})  
 
-class RegisterFormView(FormView):
-    form_class = CustomUserCreationForm
-    success_url = "/auth/"
-    template_name = "register.html"
-    def form_valid(self, form):
-        form.save()
-        mes = "Look here http://127.0.0.1/posts/ for new games!"
-        send_mail('Regisration complete', mes, 'from@example.com',
-    ['ericovva@yandex.ru'], fail_silently=False)
-        return super(RegisterFormView, self).form_valid(form)
+def register_user(request):
+    error = ''
+    if (request.POST):
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        password2 = request.POST['password2']
+        return do_registration(username,email,password,password2,request)
+        #mum.create_user(username,email,password1);
+    return render(request,'register.html', {'error': error}) 
+
+# class LoginFormView(FormView):
+#     print "login\n";
+#     form_class = AuthenticationForm
+#     template_name = "login.html"
+#     success_url = "/" 
+#     def form_valid(self, form):
+#         print "login form is valid\n";
+#         self.user = form.get_user()
+#         login(self.request, self.user)
+#         return super(LoginFormView, self).form_valid(form)
+
+
+# class RegisterFormView(FormView):
+#     form_class = CustomUserCreationForm
+#     success_url = "/auth/"
+#     template_name = "register.html"
+#     def form_valid(self, form):
+#         form.save()
+#         mes = "Look here http://127.0.0.1/posts/ for new games!"
+#         send_mail('Regisration complete', mes, 'from@example.com',
+#     ['ericovva@yandex.ru'], fail_silently=False)
+#         return super(RegisterFormView, self).form_valid(form)
+
 
 from social.apps.django_app.utils import psa
+#@psa('social:complete')
+#def login_vk(username,uid,storage,request,is_new,new_association,response,strategy,details,social,backend,pipeline_index,user):
+    # if uid:
+    #     print "AAAAAA\n"
+    #     print details
+    #     print uid
+    #     token = response['access_token']
+    #     if not details['email']:
+    #         return render(request,'social_email.html', {'username': username})
+    #     else:
+    #         register_user()
+    #     #register_user(details)
+    #     #user = backend.do_auth(token)
+    #     if user:
+    #         login(details, user)
+    #         return 'OK'
+    #     else:
+    #         return 'ERROR'
+    # else: 
+    #     return
+  
+
+    #return HttpResponseRedirect("/app/oauth2login")
+def vk (request):
+    return render(request,'auth.html');
 @psa('social:complete')
 def login_vk(request, backend):
+    # This view expects an access_token GET parameter, if it's needed,
+    # request.backend and request.strategy will be loaded with the current
+    # backend and strategy.
     token = request.GET.get('access_token')
+    print "REG_USER\n"
     user = request.backend.do_auth(request.GET.get('access_token'))
+    print "REG_USER_END\n"
     if user:
         login(request, user)
         return 'OK'
     else:
         return 'ERROR'
-  
-
-    return HttpResponseRedirect("/app/oauth2login")
-def oauth2login_view(request, **kwargs):
-    print('sada')
-    # access_token = request.GET.get('access_token')
-    # user = backend.do_auth(access_token)
-    # if user and user.is_active:
-    #     login(request, user)
-    return HttpResponseRedirect("/profile")
+# def oauth2login_view(request,backend):
+#     print('sada')
+#     access_token = request.GET.get('access_token')
+#     user = backend.do_auth(access_token)
+#     if user and user.is_active:
+#         login(request, user)
+#     return HttpResponseRedirect("/profile")
 
 from django.views.decorators.csrf import csrf_exempt 
 
@@ -421,9 +502,7 @@ def posts_page (request):
     return render(request,'list.html', {"posts":  games})#render_to_response('list.html', {"posts":  games})
 
 
-def vk (request):
 
-    return render(request,'auth.html');
 
 
 

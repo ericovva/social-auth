@@ -76,8 +76,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'webapp.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -87,14 +85,11 @@ DATABASES = {
 }
 }
 
-
-
-#LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = 'ru-RU'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
-
+AUTH_USER_MODEL = 'polls.MyUser'
 
 
 STATIC_URL = '/static/'
@@ -113,97 +108,54 @@ STATICFILES_FINDERS = (
 TEMPLATE_DIRS = (
                  "/Users/erik/Movies/webapp/polls/templates",
                  )
-####works##
-# AUTHENTICATION_BACKENDS = (
-#     'social_auth.backends.twitter.TwitterBackend',
-#     'social_auth.backends.facebook.FacebookBackend',
-#     'social_auth.backends.contrib.vk.VKOAuth2Backend',
-#     'django.contrib.auth.backends.ModelBackend',
-# )
 
-# TEMPLATE_CONTEXT_PROCESSORS = (
-#     'django.contrib.auth.context_processors.auth',
-#     'django.core.context_processors.request',
-#     'social_auth.context_processors.social_auth_by_name_backends',
-# )
-
-# VK_APP_ID = '5286780'
-# VKONTAKTE_APP_ID = VK_APP_ID
-# VK_API_SECRET = 'k6piL98lxkLhmwInHYUj'
-# VKONTAKTE_APP_SECRET = VK_API_SECRET
-# # SOCIAL_AUTH_DEFAULT_USERNAME = lambda: random.choice(['Darth_Vader', 'Obi-Wan_Kenobi', 'R2-D2', 'C-3PO', 'Yoda'])
-# SOCIAL_AUTH_DEFAULT_USERNAME = 'new_social_auth_user'
-# LOGIN_URL = '/login_vk/'
-# LOGIN_REDIRECT_URL = '/private/'
-# LOGIN_ERROR_URL = '/login-error/'
-#####
-
-# SOCIAL_AUTH_DEFAULT_USERNAME = lambda: random.choice(['Darth_Vader', 'Obi-Wan_Kenobi', 'R2-D2', 'C-3PO', 'Yoda'])
-
-# SOCIAL_AUTH_CREATE_USERS = True
 SOCIAL_AUTH_VK_OAUTH2_KEY = '5286780'
 SOCIAL_AUTH_VK_OAUTH2_SECRET = 'k6piL98lxkLhmwInHYUj'
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = 'http://nochgames.ru/'
-# SOCIAL_AUTH_LOGIN_URL = '/app/oauth2login/'  # url for callback
-#SOCIAL_AUTH_USER_MODEL = 'polls.models.MyUser'  # custom user
-SOCIAL_AUTH_UID_LENGTH = 223
+
+#SOCIAL_AUTH_USER_MODEL = 'polls.models.MyUser'
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '127.0.0.1'
+SOCIAL_AUTH_LOGIN_URL = '127.0.0.1/social_login/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '127.0.0.1/posts/'
+
+#SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
 SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
 SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
 SOCIAL_AUTH_SANITIZE_REDIRECTS = False
-# SOCIAL_AUTH_PIPELINE = (
-#     'social.pipeline.social_auth.social_details',
-#     'social.pipeline.social_auth.social_uid',
-#     'social.pipeline.social_auth.auth_allowed',
-#     'social.pipeline.social_auth.social_user',
-#     'social.pipeline.user.get_username',
-#     'polls.views.login_vk',  # method wich works with social network
-#     'social.pipeline.social_auth.associate_user',
-#     'social.pipeline.social_auth.load_extra_data',
-#     'social.pipeline.user.user_details',
-# )
+
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
     'social.pipeline.social_auth.social_uid',
     'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
+    # 'social.pipeline.social_auth.social_user',
     'social.pipeline.user.get_username',
-    'social.pipeline.social_auth.associate_by_email',  # <--- enable this one
+    #'example.app.pipeline.require_email',
+    #'social.pipeline.social_auth.associate_by_email',
+    # 'polls.views.login_vk',
+    # 'social.pipeline.mail.mail_validation',
     'social.pipeline.user.create_user',
     'social.pipeline.social_auth.associate_user',
-    'polls.views.login_vk',
+    'social.pipeline.debug.debug',
     'social.pipeline.social_auth.load_extra_data',
     'social.pipeline.user.user_details',
+    'social.pipeline.debug.debug'
 )
 
-#  'social.apps.django_app.default', into INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.vk.VKOAuth2',  # and other
-    #   setups and becks https://python-social-auth.readthedocs.org/en/latest/backends/index.html
+    'social.backends.vk.VKOAuth2',  
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# SOCIAL_AUTH_PIPELINE = (
 
-#     'social_auth.backends.pipeline.social.social_auth_user',
-
-#     'social_auth.backends.pipeline.associate.associate_by_email',
-
-#     'social_auth.backends.pipeline.user.get_username',
-
-#     'social_auth.backends.pipeline.user.create_user',
-
-#     'social_auth.backends.pipeline.social.associate_user',
-
-#     'social_auth.backends.pipeline.social.load_extra_data',
-
-#     'social_auth.backends.pipeline.user.update_user_details'
-# )
 EMAIL_HOST_USER = 'ericovva@gmail.com'
 #DEFAULT_FROM_EMAIL = 'user@gmail.com'
-EMAIL_HOST_PASSWORD = 'SwiftSoul1993'
+EMAIL_HOST_PASSWORD = 'SwiftSoul7143'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#AUTH_USER_MODEL = 'polls.MyUser'

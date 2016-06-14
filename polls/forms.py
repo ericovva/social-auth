@@ -8,7 +8,7 @@ from django.conf import settings
 class CustomUserCreationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = MyUser
-        fields = ('email','username')
+        fields = ('email',)
         
         # def clean_username(self):
         #     username = self.cleaned_data["username"]
